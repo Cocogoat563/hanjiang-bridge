@@ -1,12 +1,11 @@
  hanjiangbridge
  🏗️ 汉江大桥 · 襄阳 | 融媒体作品
-
 > 一个展现汉江大桥历史变迁与现代风貌的交互式融媒体网页作品
-
-[![GitHub Pages](https://img.shields.io/badge/在线预览GitHub%20Pagesbrightgreen)](https://cocogoat563.github.io/hanjiangbridge/)
-[![HTML](https://img.shields.io/badge/技术HTML%2FCSS%2FJavaScriptblue)](https://developer.mozilla.org/)
-[![License](https://img.shields.io/badge/许可证MITgreen)](LICENSE)
-
+🚀 快速开始
+在线访问
+直接访问 GitHub Pages 部署的网站：
+[https://cocogoat563.github.io/hanjiang-bridge/](https://cocogoat563.github.io/hanjiang-bridge/)
+> 
  🌉 作品简介
 
 《汉江大桥·襄阳》是一个融合历史档案、人物访谈、数据可视化与摄影艺术的融媒体网页作品。作品通过六屏全屏滚动设计，全面展现了襄阳汉江大桥从1971年建成至今的历史变迁，以及它作为城市精神地标的文化意义。
@@ -45,8 +44,4 @@
 |Chart.js | 数据可视化图表 | 4.4.1 |
 |GitHub Pages | 静态网站托管 | 自动部署 |
 
-🚀 快速开始
 
-在线访问
-直接访问 GitHub Pages 部署的网站：
-[https://cocogoat563.github.io/hanjiang-bridge/](https://cocogoat563.github.io/hanjiang-bridge/)
