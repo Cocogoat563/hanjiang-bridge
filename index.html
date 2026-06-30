@@ -796,21 +796,66 @@ dots.forEach(dot => {
 });
 
 // ---------- 滑动对比组件 ----------
+// 修复滑动对比功能
 const slider = document.getElementById('compareSlider');
-const beforeImg = document.querySelector('.comparison-before');
 const line = document.getElementById('compareLine');
 const handle = document.getElementById('compareHandle');
+const beforeImg = document.querySelector('.comparison-before');
 
-function updateCompare(val) {
-  const v = val || slider.value;
-  const pct = 100 - v + '%';
-  beforeImg.style.clipPath = `inset(0 ${pct} 0 0)`;
-  line.style.setProperty('--line-pos', v + '%');
-  handle.style.setProperty('--line-pos', v + '%');
+if (slider && line && handle && beforeImg) {
+    // 初始化位置
+    const updateSlider = (value) => {
+        const percent = value + '%';
+        line.style.setProperty('--line-pos', percent);
+        handle.style.setProperty('--line-pos', percent);
+        beforeImg.style.setProperty('--clip-right', (100 - value) + '%');
+    };
+    
+    // 监听滑块变化
+    slider.addEventListener('input', (e) => {
+        updateSlider(e.target.value);
+    });
+    
+    // 初始化
+    updateSlider(slider.value);
+    
+    // 添加鼠标拖动支持
+    const container = slider.closest('.comparison-container');
+    if (container) {
+        container.addEventListener('mousedown', startDrag);
+        container.addEventListener('touchstart', startDrag);
+    }
+    
+    function startDrag(e) {
+        e.preventDefault();
+        const isTouch = e.type === 'touchstart';
+        const moveEvent = isTouch ? 'touchmove' : 'mousemove';
+        const endEvent = isTouch ? 'touchend' : 'mouseup';
+        
+        const moveHandler = (moveEvent) => {
+            const rect = container.getBoundingClientRect();
+            const clientX = isTouch ? moveEvent.touches[0].clientX : moveEvent.clientX;
+            let x = clientX - rect.left;
+            x = Math.max(0, Math.min(x, rect.width));
+            const percent = Math.round((x / rect.width) * 100);
+            
+            slider.value = percent;
+            updateSlider(percent);
+        };
+        
+        const endHandler = () => {
+            document.removeEventListener(moveEvent, moveHandler);
+            document.removeEventListener(endEvent, endHandler);
+        };
+        
+        document.addEventListener(moveEvent, moveHandler);
+        document.addEventListener(endEvent, endHandler);
+        
+        // 触发第一次移动
+        moveHandler(e);
+    }
 }
 
-slider.addEventListener('input', () => updateCompare());
-updateCompare(50);
 
 // ---------- Lightbox 照片放大 ----------
 function openLightbox(el) {
