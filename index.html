@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>汉江大桥 · 襄阳 | 融媒体作品</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+/* ========== 全局重置与基础样式 ========== */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html {
+  scroll-behavior: smooth;
+  scroll-snap-type: y mandatory;
+}
+body {
+  font-family: -apple-system, "PingFang SC", "Microsoft YaHei", "Noto Sans SC", sans-serif;
+  background: #0a0a0a;
+  color: #f0f0f0;
+  overflow-x: hidden;
+}
+
+/* ========== 全屏滚动容器 ========== */
+.section {
+  min-height: 100vh;
+  scroll-snap-align: start;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+}
+
+/* ========== 右侧导航点 ========== */
+.nav-dots {
+  position: fixed;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 999;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.nav-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.3);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: none;
+}
+.nav-dot.active {
+  background: #e67e22;
+  transform: scale(1.4);
+  box-shadow: 0 0 8px rgba(230,126,34,0.6);
+}
+.nav-dot:hover { background: rgba(255,255,255,0.7); }
+
+/* ========== 第1屏：封面 ========== */
+#screen-cover {
+  background: #000;
+  overflow: hidden;
+}
+.cover-bg {
+  position: absolute;
+  top: 0; left: 0; width: 100%; height: 100%;
+  object-fit: cover;
+  opacity: 0.5;
+  transition: opacity 2s ease;
+}
+.cover-content {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+}
+.cover-title {
+  font-size: clamp(48px, 8vw, 96px);
+  font-weight: 900;
+  letter-spacing: 20px;
+  margin-bottom: 16px;
+  background: linear-gradient(135deg, #e67e22, #f39c12, #fff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-shadow: none;
+  animation: titleGlow 3s ease-in-out infinite alternate;
+}
+.cover-subtitle {
+  font-size: clamp(18px, 2.5vw, 28px);
+  letter-spacing: 8px;
+  color: rgba(255,255,255,0.7);
+  margin-bottom: 30px;
+  font-weight: 300;
+}
+.cover-tagline {
+  max-width: 600px;
+  font-size: clamp(14px, 1.8vw, 18px);
+  line-height: 1.8;
+  color: rgba(255,255,255,0.55);
+  border-top: 1px solid rgba(255,255,255,0.15);
+  border-bottom: 1px solid rgba(255,255,255,0.15);
+  padding: 18px 30px;
+  margin: 0 auto;
+}
+.scroll-hint {
+  position: absolute;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  color: rgba(255,255,255,0.4);
+  font-size: 13px;
+  animation: bounceDown 2s infinite;
+}
+.scroll-arrow {
+  width: 24px; height: 24px;
+  border-right: 2px solid rgba(255,255,255,0.4);
+  border-bottom: 2px solid rgba(255,255,255,0.4);
+  transform: rotate(45deg);
+}
+
+/* ========== 第2屏：建桥档案 + 滑动对比 ========== */
+#screen-archive {
+  background: linear-gradient(180deg, #0d1117 0%, #161b22 100%);
+}
+.screen-title {
+  font-size: clamp(28px, 4vw, 44px);
+  font-weight: 700;
+  margin-bottom: 12px;
+  color: #e67e22;
+  text-align: center;
+}
+.screen-subtitle {
+  font-size: clamp(13px, 1.5vw, 16px);
+  color: rgba(255,255,255,0.45);
+  margin-bottom: 36px;
+  text-align: center;
+}
+.archive-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+  width: 100%;
+  max-width: 960px;
+  margin-bottom: 48px;
+}
+.archive-card {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px;
+  padding: 22px 26px;
+  transition: transform 0.3s, border-color 0.3s;
+}
+.archive-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(230,126,34,0.35);
+}
+.archive-card .label {
+  font-size: 12px;
+  color: #e67e22;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-bottom: 8px;
+}
+.archive-card .value {
+  font-size: clamp(16px, 2vw, 22px);
+  font-weight: 600;
+  color: #eee;
+}
+.archive-card .desc {
+  font-size: 13px;
+  color: rgba(255,255,255,0.45);
+  margin-top: 6px;
+  line-height: 1.6;
+}
+
+/* 滑动对比组件 */
+.comparison-container {
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+  user-select: none;
+}
+.comparison-wrapper {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16/9;
+  overflow: hidden;
+}
+.comparison-img {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  object-fit: cover;
+}
+.comparison-before {
+  clip-path: inset(0 var(--clip-right, 50%) 0 0);
+}
+.comparison-label {
+  position: absolute;
+  bottom: 14px;
+  padding: 6px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: 20px;
+  backdrop-filter: blur(8px);
+}
+.label-before { left: 14px; background: rgba(0,0,0,0.55); }
+.label-after { right: 14px; background: rgba(255,255,255,0.15); }
+.comparison-slider {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  opacity: 0;
+  cursor: ew-resize;
+  z-index: 10;
+}
+.comparison-line {
+  position: absolute;
+  top: 0; bottom: 0;
+  left: var(--line-pos, 50%);
+  width: 3px;
+  background: #e67e22;
+  pointer-events: none;
+  z-index: 5;
+  box-shadow: 0 0 12px rgba(230,126,34,0.5);
+}
+.comparison-handle {
+  position: absolute;
+  top: 50%;
+  left: var(--line-pos, 50%);
+  transform: translate(-50%, -50%);
+  width: 42px; height: 42px;
+  background: #e67e22;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 6;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.4);
+}
+.comparison-handle::before,
+.comparison-handle::after {
+  content: '';
+  width: 2px; height: 14px;
+  background: #fff;
+  position: absolute;
+}
+.comparison-handle::before { left: 11px; }
+.comparison-handle::after { right: 11px; }
+
+/* ========== 第3屏：人物故事 ========== */
+#screen-character {
+  background: linear-gradient(180deg, #161b22 0%, #0d1117 100%);
+}
+.character-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+  width: 100%;
+  max-width: 1100px;
+  align-items: start;
+}
+@media (max-width: 768px) {
+  .character-container { grid-template-columns: 1fr; }
+}
+.video-wrapper {
+  position: relative;
+  width: 100%;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+  background: #000;
+  aspect-ratio: 16/9;
+}
+.video-wrapper video,
+.video-wrapper iframe {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border: none;
+}
+.character-info {
+  padding: 10px 0;
+}
+.character-name {
+  font-size: clamp(24px, 3vw, 36px);
+  font-weight: 700;
+  color: #e67e22;
+  margin-bottom: 8px;
+}
+.character-role {
+  font-size: 15px;
+  color: rgba(255,255,255,0.5);
+  margin-bottom: 24px;
+  padding-left: 16px;
+  border-left: 3px solid #e67e22;
+}
+.character-quote {
+  font-size: clamp(15px, 1.8vw, 19px);
+  line-height: 1.9;
+  color: rgba(255,255,255,0.75);
+  padding: 24px;
+  background: rgba(255,255,255,0.03);
+  border-radius: 12px;
+  border-left: 4px solid #e67e22;
+  font-style: italic;
+}
+.character-quote cite {
+  display: block;
+  margin-top: 14px;
+  font-size: 13px;
+  color: rgba(255,255,255,0.35);
+  font-style: normal;
+}
+
+/* ========== 第4屏：城市变迁 + 数据可视化 ========== */
+#screen-urban {
+  background: linear-gradient(180deg, #0d1117 0%, #111827 100%);
+}
+.urban-layout {
+  width: 100%;
+  max-width: 1100px;
+}
+.video-compare-section {
+  margin-bottom: 48px;
+}
+.video-compare-section h3 {
+  font-size: 20px;
+  color: #e67e22;
+  margin-bottom: 16px;
+  text-align: center;
+}
+.video-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+@media (max-width: 768px) {
+  .video-row { grid-template-columns: 1fr; }
+}
+.video-thumb {
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+  aspect-ratio: 16/9;
+  background: #000;
+}
+.video-thumb video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.video-caption {
+  text-align: center;
+  font-size: 13px;
+  color: rgba(255,255,255,0.45);
+  margin-top: 8px;
+}
+
+.chart-section h3 {
+  font-size: 20px;
+  color: #e67e22;
+  margin-bottom: 24px;
+  text-align: center;
+}
+.charts-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+@media (max-width: 768px) {
+  .charts-grid { grid-template-columns: 1fr; }
+}
+.chart-box {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 12px;
+  padding: 24px;
+}
+.chart-box canvas {
+  width: 100% !important;
+  max-height: 280px;
+}
+.chart-title {
+  font-size: 15px;
+  color: rgba(255,255,255,0.65);
+  margin-bottom: 14px;
+  text-align: center;
+}
+
+/* ========== 第5屏：我的汉江记忆（照片墙） ========== */
+#screen-gallery {
+  background: linear-gradient(180deg, #111827 0%, #0d1117 100%);
+}
+.gallery-intro {
+  max-width: 680px;
+  text-align: center;
+  font-size: 15px;
+  line-height: 1.8;
+  color: rgba(255,255,255,0.55);
+  margin-bottom: 40px;
+}
+.photo-wall {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 14px;
+  width: 100%;
+  max-width: 1100px;
+}
+.photo-item {
+  position: relative;
+  border-radius: 10px;
+  overflow: hidden;
+  cursor: pointer;
+  aspect-ratio: 4/3;
+  background: rgba(255,255,255,0.05);
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+.photo-item:hover {
+  transform: scale(1.03);
+  box-shadow: 0 8px 24px rgba(230,126,34,0.25);
+}
+.photo-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s;
+}
+.photo-item:hover img { transform: scale(1.08); }
+.photo-overlay {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  padding: 30px 14px 14px;
+  background: linear-gradient(transparent, rgba(0,0,0,0.75));
+  color: #fff;
+  font-size: 13px;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.photo-item:hover .photo-overlay { opacity: 1; }
+
+/* Lightbox */
+.lightbox {
+  display: none;
+  position: fixed;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(0,0,0,0.92);
+  z-index: 2000;
+  justify-content: center;
+  align-items: center;
+  cursor: zoom-out;
+}
+.lightbox.active { display: flex; }
+.lightbox img {
+  max-width: 90vw;
+  max-height: 85vh;
+  border-radius: 8px;
+  box-shadow: 0 8px 48px rgba(0,0,0,0.6);
+}
+.lightbox-close {
+  position: absolute;
+  top: 24px; right: 24px;
+  font-size: 36px;
+  color: #fff;
+  cursor: pointer;
+  z-index: 2001;
+  line-height: 1;
+}
+.lightbox-caption {
+  position: absolute;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: rgba(255,255,255,0.6);
+  font-size: 14px;
+  text-align: center;
+}
+
+/* ========== 第6屏：结尾 ========== */
+#screen-ending {
+  background: linear-gradient(180deg, #0d1117 0%, #000 100%);
+  text-align: center;
+}
+.ending-title {
+  font-size: clamp(32px, 4vw, 52px);
+  font-weight: 300;
+  color: #e67e22;
+  margin-bottom: 30px;
+  letter-spacing: 6px;
+}
+.ending-divider {
+  width: 60px;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #e67e22, transparent);
+  margin: 0 auto 30px;
+}
+.creator-info {
+  margin-bottom: 40px;
+}
+.creator-name {
+  font-size: 20px;
+  font-weight: 600;
+  color: #eee;
+  margin-bottom: 8px;
+}
+.creator-id {
+  font-size: 14px;
+  color: rgba(255,255,255,0.4);
+}
+.ending-quote {
+  max-width: 500px;
+  font-size: 16px;
+  line-height: 1.9;
+  color: rgba(255,255,255,0.5);
+  font-style: italic;
+  margin: 0 auto 40px;
+}
+.footer-info {
+  font-size: 12px;
+  color: rgba(255,255,255,0.25);
+  line-height: 2;
+}
+
+/* ========== 动画关键帧 ========== */
+@keyframes titleGlow {
+  from { filter: brightness(1); }
+  to { filter: brightness(1.15); }
+}
+@keyframes bounceDown {
+  0%, 100% { transform: translateX(-50%) translateY(0); opacity: 0.6; }
+  50% { transform: translateX(-50%) translateY(10px); opacity: 0.3; }
+}
+
+/* ========== 响应式微调 ========== */
+@media (max-width: 480px) {
+  .archive-grid { grid-template-columns: 1fr; }
+  .nav-dots { right: 10px; }
+  .section { padding: 30px 16px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ====== 右侧导航点 ====== -->
+<nav class="nav-dots" aria-label="页面导航">
+  <button class="nav-dot active" data-target="screen-cover" title="封面"></button>
+  <button class="nav-dot" data-target="screen-archive" title="建桥档案"></button>
+  <button class="nav-dot" data-target="screen-character" title="人物故事"></button>
+  <button class="nav-dot" data-target="screen-urban" title="大桥变迁"></button>
+  <button class="nav-dot" data-target="screen-gallery" title="汉江记忆"></button>
+  <button class="nav-dot" data-target="screen-ending" title="结尾"></button>
+</nav>
+
+<!-- ==================== 第1屏：封面 ==================== -->
+<section id="screen-cover" class="section">
+  <!-- 【替换】将下面的图片路径替换为你的航拍截图 -->
+  <img class="cover-bg" src="images/cover_day.jpg" alt="汉江大桥航拍全景" onerror="this.style.display='none'">
+  <div class="cover-content">
+    <h1 class="cover-title">汉江大桥</h1>
+    <p class="cover-subtitle">襄 阳</p>
+    <p class="cover-tagline">
+      它不仅是交通的动脉，更是城市发展的见证者。<br>
+      连接过去与未来，承载着无数人的记忆与梦想。
+    </p>
+  </div>
+  <div class="scroll-hint">
+    <span>向下滚动探索</span>
+    <div class="scroll-arrow"></div>
+  </div>
+</section>
+
+<!-- ==================== 第2屏：建桥档案 + 滑动对比 ==================== -->
+<section id="screen-archive" class="section">
+  <h2 class="screen-title">建桥档案</h2>
+  <p class="screen-subtitle">穿越半个世纪，见证一座城市的生长</p>
+
+  <!-- 档案卡片 -->
+  <div class="archive-grid">
+    <div class="archive-card">
+      <div class="label">建成时间</div>
+      <div class="value">1971年</div>
+      <div class="desc">历经数年建设，于1971年正式通车，是襄阳地区第一座跨江大桥。</div>
+    </div>
+    <div class="archive-card">
+      <div class="label">桥梁类型</div>
+      <div class="value">公路铁路两用桥</div>
+      <div class="desc">上层公路、下层铁路的独特设计，兼具交通与战略意义。</div>
+    </div>
+    <div class="archive-card">
+      <div class="label">历史地位</div>
+      <div class="value">207国道咽喉</div>
+      <div class="desc">作为南北交通要道上的关键节点，承载着区域发展的重任。</div>
+    </div>
+    <div class="archive-card">
+      <div class="label">文化象征</div>
+      <div class="value">城市精神地标</div>
+      <div class="desc">从渔火点点到灯火辉煌，见证了襄阳从江边小镇到现代都市的蜕变。</div>
+    </div>
+  </div>
+
+  <!-- 新老照片滑动对比 -->
+  <h3 style="font-size:18px;color:#e67e22;text-align:center;margin-bottom:20px;">📷 新旧对比 · 拖动滑块查看</h3>
+  <div class="comparison-container">
+    <div class="comparison-wrapper">
+      <!-- 【替换】旧照片 -->
+      <img class="comparison-img comparison-before" src="images/old_bridge.jpg" alt="汉江大桥旧貌" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 800 450%22><rect fill=%22%231a1a2e%22 width=%22800%22 height=%22450%22/><text x=%22400%22 y=%22225%22 fill=%22%23666%22 text-anchor=%22middle%22 font-size=%2224%22>请替换：旧照片 images/old_bridge.jpg</text></svg>'">
+      <!-- 【替换】新照片 -->
+      <img class="comparison-img comparison-after" src="images/new_bridge.jpg" alt="汉江大桥今貌" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 800 450%22><rect fill=%22%232d2d44%22 width=%22800%22 height=%22450%22/><text x=%22400%22 y=%22225%22 fill=%22%23888%22 text-anchor=%22middle%22 font-size=%2224%22>请替换：新照片 images/new_bridge.jpg</text></svg>'">
+      <span class="comparison-label label-before">1970年代</span>
+      <span class="comparison-label label-after">2026年</span>
+      <input type="range" class="comparison-slider" min="0" max="100" value="50" id="compareSlider">
+      <div class="comparison-line" id="compareLine"></div>
+      <div class="comparison-handle" id="compareHandle"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== 第3屏：人物故事 ==================== -->
+<section id="screen-character" class="section">
+  <h2 class="screen-title">守望者</h2>
+  <p class="screen-subtitle">桥梁与人的故事，在时光中静静流淌</p>
+
+  <div class="character-container">
+    <div class="video-wrapper">
+      <!-- 【替换】黄师傅口述视频 -->
+      <video controls preload="metadata" poster="images/video_poster_huang.jpg"
+             onerror="this.parentElement.innerHTML='<div style=display:flex;align-items:center;justify-content:center;height:100%;color:%23666;font-size:16px;background:%23111;>请替换：video/huangshifu.mp4</div>'">
+        <source src="video/huangshifu.mp4" type="video/mp4">
+        您的浏览器不支持视频播放
+      </video>
+    </div>
+    <div class="character-info">
+      <h3 class="character-name">黄师傅</h3>
+      <p class="character-role">退休铁道机车司机｜与汉江大桥相伴数十载</p>
+      <blockquote class="character-quote">
+        "这座桥对于我有着不同的意义。1971年建成，那时候我还小……<br><br>
+        它是我们襄阳人自己的桥，是连接两岸的纽带，更是城市发展的见证者。"
+        <cite>—— 黄师傅口述访谈片段</cite>
+      </blockquote>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== 第4屏：城市变迁 + 数据可视化 ==================== -->
+<section id="screen-urban" class="section">
+  <h2 class="screen-title">大桥变迁</h2>
+  <p class="screen-subtitle">从渔火点点到灯光辉煌</p>
+
+  <div class="urban-layout">
+    <!-- 航拍视频对比 -->
+    <div class="video-compare-section">
+      <h3>🎬 航拍视角 · 今昔对照</h3>
+      <div class="video-row">
+        <div>
+          <div class="video-thumb">
+            <!-- 【替换】历史影像/老素材 -->
+            <video controls preload="metadata" muted loop
+                   onerror="this.parentElement.innerHTML='<div style=display:flex;align-items:center;justify-content:center;height:100%;color:%23666;font-size:14px;background:%23111;>请替换：历史航拍视频</div>'">
+              <source src="video/aerial_old.mp4" type="video/mp4">
+            </video>
+          </div>
+          <p class="video-caption">历史影像资料</p>
+        </div>
+        <div>
+          <div class="video-thumb">
+            <!-- 【替换】当代航拍视频 -->
+            <video controls preload="metadata" muted loop
+                   onerror="this.parentElement.innerHTML='<div style=display:flex;align-items:center;justify-content:center;height:100%;color:%23666;font-size:14px;background:%23111;>请替换：当代航拍视频</div>'">
+              <source src="video/aerial_new.mp4" type="video/mp4">
+            </video>
+          </div>
+          <p class="video-caption">当代航拍实况</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 数据可视化图表 -->
+    <div class="chart-section">
+      <h3>📊 数据里的城市生长</h3>
+      <div class="charts-grid">
+        <div class="chart-box">
+          <div class="chart-title">襄阳市GDP增长趋势（亿元）</div>
+          <canvas id="gdpChart"></canvas>
+        </div>
+        <div class="chart-box">
+          <div class="chart-title">襄阳市区人口变化（万人）</div>
+          <canvas id="popChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== 第5屏：我的汉江记忆（照片墙） ==================== -->
+<section id="screen-gallery" class="section">
+  <h2 class="screen-title">我的汉江记忆</h2>
+  <p class="gallery-intro">
+    每个人眼中都有一座不同的汉江大桥。<br>
+    以下是我关于汉江大桥的摄影作品——有对亲友的摄影留念，也有亲友镜头中关于自己的青春印记。
+  </p>
+
+  <div class="photo-wall">
+    <!-- 【替换】以下图片路径替换为你的实际照片 -->
+    <div class="photo-item" onclick="openLightbox(this)">
+      <img src="images/gallery_01.jpg" alt="汉江记忆01" loading="lazy"
+           onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 400 300%22><rect fill=%22%231a1a2e%22 width=%22400%22 height=%22300%22/><text x=%22200%22 y=%22150%22 fill=%22%23555%22 text-anchor=%22middle%22 font-size=%2216%22>照片01</text></svg>'">
+      <div class="photo-overlay">点击查看大图</div>
+    </div>
+    <div class="photo-item" onclick="openLightbox(this)">
+      <img src="images/gallery_02.jpg" alt="汉江记忆02" loading="lazy"
+           onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 400 300%22><rect fill=%22%221a1a2e%22 width=%22400%22 height=%22300%22/><text x=%22200%22 y=%22150%22 fill=%22%23555%22 text-anchor=%22middle%22 font-size=%2216%22>照片02</text></svg>'">
+      <div class="photo-overlay">点击查看大图</div>
+    </div>
+    <div class="photo-item" onclick="openLightbox(this)">
+      <img src="images/gallery_03.jpg" alt="汉江记忆03" loading="lazy"
+           onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 400 300%22><rect fill=%22%221a1a2e%22 width=%22400%22 height=%22300%22/><text x=%22200%22 y=%22150%22 fill=%22%23555%22 text-anchor=%22middle%22 font-size=%2216%22>照片03</text></svg>'">
+      <div class="photo-overlay">点击查看大图</div>
+    </div>
+    <div class="photo-item" onclick="openLightbox(this)">
+      <img src="images/gallery_04.jpg" alt="汉江记忆04" loading="lazy"
+           onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 400 300%22><rect fill=%22%221a1a2e%22 width=%22400%22 height=%22300%22/><text x=%22200%22 y=%22150%22 fill=%22%23555%22 text-anchor=%22middle%22 font-size=%2216%22>Cosplay作品</text></svg>'">
+      <div class="photo-overlay">Cosplay创作</div>
+    </div>
+    <div class="photo-item" onclick="openLightbox(this)">
+      <img src="images/gallery_05.jpg" alt="汉江记忆05" loading="lazy"
+           onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 400 300%22><rect fill=%22%221a1a2e%22 width=%22400%22 height=%22300%22/><text x=%22200%22 y=%22150%22 fill=%22%23555%22 text-anchor=%22middle%22 font-size=%2216%22>照片05</text></svg>'">
+      <div class="photo-overlay">点击查看大图</div>
+    </div>
+    <div class="photo-item" onclick="openLightbox(this)">
+      <img src="images/gallery_06.jpg" alt="汉江记忆06" loading="lazy"
+           onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 400 300%22><rect fill=%22%221a1a2e%22 width=%22400%22 height=%22300%22/><text x=%22200%22 y=%22150%22 fill=%22%23555%22 text-anchor=%22middle%22 font-size=%2216%22>照片06</text></svg>'">
+      <div class="photo-overlay">点击查看大图</div>
+    </div>
+  </div>
+</section>
+
+<!-- Lightbox 弹窗 -->
+<div class="lightbox" id="lightbox" onclick="closeLightbox()">
+  <span class="lightbox-close">&times;</span>
+  <img id="lightboxImg" src="" alt="放大预览">
+  <div class="lightbox-caption" id="lightboxCaption"></div>
+</div>
+
+<!-- ==================== 第6屏：结尾 ==================== -->
+<section id="screen-ending" class="section">
+  <h2 class="ending-title">静候聆听</h2>
+  <div class="ending-divider"></div>
+  <div class="creator-info">
+    <p class="creator-name">张黄平 广编2312</p>
+    <p class="creator-id">【2023195188】</p>
+  </div>
+  <p class="ending-quote">
+    "在岁月长河中，它静静地诉说着属于这座城市的故事，等待着世人的聆听。"
+  </p>
+  <div class="footer-info">
+    人文湖北 · 融媒体作品<br>
+    《汉江大桥》襄阳 · 2026
+  </div>
+</section>
+
+<!-- ==================== JavaScript 交互逻辑 ==================== -->
+<!-- ==================== JavaScript 交互逻辑 ==================== -->
+<!-- ==================== JavaScript 交互逻辑 ==================== -->
+<script>
+// ---------- 导航点高亮 ----------
+const sections = document.querySelectorAll('.section');
+const dots = document.querySelectorAll('.nav-dot');
+
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      const id = entry.target.id;
+      dots.forEach(d => d.classList.toggle('active', d.dataset.target === id));
+    }
+  });
+}, { threshold: 0.5 });
+
+sections.forEach(s => observer.observe(s));
+
+dots.forEach(dot => {
+  dot.addEventListener('click', () => {
+    const target = document.getElementById(dot.dataset.target);
+    if (target) target.scrollIntoView({ behavior: 'smooth' });
+  });
+});
+
+// ---------- 滑动对比组件 ----------
+const slider = document.getElementById('compareSlider');
+const beforeImg = document.querySelector('.comparison-before');
+const line = document.getElementById('compareLine');
+const handle = document.getElementById('compareHandle');
+
+function updateCompare(val) {
+  const v = val || slider.value;
+  const pct = 100 - v + '%';
+  beforeImg.style.clipPath = `inset(0 ${pct} 0 0)`;
+  line.style.setProperty('--line-pos', v + '%');
+  handle.style.setProperty('--line-pos', v + '%');
+}
+
+slider.addEventListener('input', () => updateCompare());
+updateCompare(50);
+
+// ---------- Lightbox 照片放大 ----------
+function openLightbox(el) {
+  const img = el.querySelector('img');
+  const lb = document.getElementById('lightbox');
+  const lbImg = document.getElementById('lightboxImg');
+  const lbCap = document.getElementById('lightboxCaption');
+  lbImg.src = img.src;
+  lbCap.textContent = img.alt;
+  lb.classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeLightbox() {
+  document.getElementById('lightbox').classList.remove('active');
+  document.body.style.overflow = '';
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeLightbox();
+});
+
+// ---------- Chart.js 数据可视化 ----------
+const chartOpts = {
+  responsive: true,
+  maintainAspectRatio: true,
+  plugins: {
+    legend: { labels: { color: 'rgba(255,255,255,0.6)', font: { size: 12 } } },
+    tooltip: { backgroundColor: 'rgba(0,0,0,0.8)', titleColor: '#e67e22', bodyColor: '#ddd' }
+  },
+  scales: {
+    x: { ticks: { color: 'rgba(255,255,255,0.5)' }, grid: { color: 'rgba(255,255,255,0.05)' } },
+    y: { ticks: { color: 'rgba(255,255,255,0.5)' }, grid: { color: 'rgba(255,255,255,0.05)' } }
+  }
+};
+
+// GDP 图表
+new Chart(document.getElementById('gdpChart'), {
+  type: 'line',
+  data: {
+    labels: ['1971', '1980', '1990', '2000', '2010', '2020', '2024'],
+    datasets: [{
+      label: 'GDP（亿元）',
+      data: [5.2, 14.8, 43.6, 128.5, 420.0, 1560.0, 2800.0],
+      borderColor: '#e67e22',
+      backgroundColor: 'rgba(230,126,34,0.1)',
+      fill: true,
+      tension: 0.4,
+      pointBackgroundColor: '#e67e22',
+      pointRadius: 4,
+      pointHoverRadius: 7
+    }]
+  },
+  options: chartOpts
+});
+
+// 人口图表
+new Chart(document.getElementById('popChart'), {
+  type: 'bar',
+  data: {
+    labels: ['1971', '1980', '1990', '2000', '2010', '2020', '2024'],
+    datasets: [{
+      label: '市区人口（万人）',
+      data: [28, 42, 58, 86, 125, 210, 260],
+      backgroundColor: 'rgba(52,152,219,0.6)',
+      borderColor: '#3498db',
+      borderWidth: 1,
+      borderRadius: 4
+    }]
+  },
+  options: chartOpts
+});
+</script>
+
+</body>
+</html>
