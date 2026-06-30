@@ -1,1 +1,52 @@
-# hanjiang-bridge
+ hanjiangbridge
+ 🏗️ 汉江大桥 · 襄阳 | 融媒体作品
+
+> 一个展现汉江大桥历史变迁与现代风貌的交互式融媒体网页作品
+
+[![GitHub Pages](https://img.shields.io/badge/在线预览GitHub%20Pagesbrightgreen)](https://cocogoat563.github.io/hanjiangbridge/)
+[![HTML](https://img.shields.io/badge/技术HTML%2FCSS%2FJavaScriptblue)](https://developer.mozilla.org/)
+[![License](https://img.shields.io/badge/许可证MITgreen)](LICENSE)
+
+ 🌉 作品简介
+
+《汉江大桥·襄阳》是一个融合历史档案、人物访谈、数据可视化与摄影艺术的融媒体网页作品。作品通过六屏全屏滚动设计，全面展现了襄阳汉江大桥从1971年建成至今的历史变迁，以及它作为城市精神地标的文化意义。
+
+ 🎯 核心特色
+
+ 📱 响应式全屏设计
+ 六屏垂直滚动布局，每屏独立主题
+ 移动端/桌面端完美适配
+ 右侧导航点快速跳转
+
+ 🎨 多媒体融合呈现
+历史影像对比：新旧大桥照片上下对照
+人物访谈视频：退休铁道司机黄师傅口述历史
+航拍视频对比：今昔航拍视角对照
+数据可视化：GDP增长与人口变化图表
+摄影作品墙：个人汉江记忆摄影集
+
+ 📊 数据驱动叙事
+ 使用 Chart.js 绘制动态数据图表
+ 展示襄阳市19712024年GDP增长趋势
+ 展示襄阳市区人口变化数据
+
+ 🖼️ 交互体验
+ 照片墙点击放大预览
+ 平滑滚动与导航交互
+ 悬停效果与动画过渡
+
+ 🖥️ 技术栈
+
+| 技术 | 用途 | 版本 |
+||||
+|HTML5 | 页面结构与语义化标签 | 最新 |
+|CSS3 | 响应式布局与动画效果 | 最新 |
+|JavaScript | 交互逻辑与动态效果 | ES6+ |
+|Chart.js | 数据可视化图表 | 4.4.1 |
+|GitHub Pages | 静态网站托管 | 自动部署 |
+
+🚀 快速开始
+
+在线访问
+直接访问 GitHub Pages 部署的网站：
+[https://cocogoat563.github.io/hanjiang-bridge/](https://cocogoat563.github.io/hanjiang-bridge/)
