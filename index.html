@@ -179,85 +179,38 @@ body {
   line-height: 1.6;
 }
 
-/* 滑动对比组件 */
-.comparison-container {
+/* 新旧对比 · 静态上下图片 */
+.static-compare {
   width: 100%;
   max-width: 800px;
   margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.static-compare-item {
   position: relative;
   border-radius: 12px;
   overflow: hidden;
   box-shadow: 0 8px 32px rgba(0,0,0,0.5);
-  user-select: none;
 }
-.comparison-wrapper {
-  position: relative;
+.static-compare-item img {
   width: 100%;
+  display: block;
   aspect-ratio: 16/9;
-  overflow: hidden;
-}
-.comparison-img {
-  position: absolute;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
   object-fit: cover;
 }
-.comparison-before {
-  clip-path: inset(0 var(--clip-right, 50%) 0 0);
-}
-.comparison-label {
+.static-compare-label {
   position: absolute;
   bottom: 14px;
-  padding: 6px 16px;
+  padding: 6px 18px;
   font-size: 13px;
   font-weight: 600;
   border-radius: 20px;
   backdrop-filter: blur(8px);
 }
-.label-before { left: 14px; background: rgba(0,0,0,0.55); }
-.label-after { right: 14px; background: rgba(255,255,255,0.15); }
-.comparison-slider {
-  position: absolute;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
-  opacity: 0;
-  cursor: ew-resize;
-  z-index: 10;
-}
-.comparison-line {
-  position: absolute;
-  top: 0; bottom: 0;
-  left: var(--line-pos, 50%);
-  width: 3px;
-  background: #e67e22;
-  pointer-events: none;
-  z-index: 5;
-  box-shadow: 0 0 12px rgba(230,126,34,0.5);
-}
-.comparison-handle {
-  position: absolute;
-  top: 50%;
-  left: var(--line-pos, 50%);
-  transform: translate(-50%, -50%);
-  width: 42px; height: 42px;
-  background: #e67e22;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  pointer-events: none;
-  z-index: 6;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.4);
-}
-.comparison-handle::before,
-.comparison-handle::after {
-  content: '';
-  width: 2px; height: 14px;
-  background: #fff;
-  position: absolute;
-}
-.comparison-handle::before { left: 11px; }
-.comparison-handle::after { right: 11px; }
+.label-old { left: 14px; background: rgba(0,0,0,0.6); color: #fff; }
+.label-new { left: 14px; background: rgba(230,126,34,0.85); color: #fff; }
 
 /* ========== 第3屏：人物故事 ========== */
 #screen-character {
@@ -557,7 +510,7 @@ body {
   <button class="nav-dot active" data-target="screen-cover" title="封面"></button>
   <button class="nav-dot" data-target="screen-archive" title="建桥档案"></button>
   <button class="nav-dot" data-target="screen-character" title="人物故事"></button>
-  <button class="nav-dot" data-target="screen-urban" title="大桥变迁"></button>
+  <button class="nav-dot" data-target="screen-urban" title="城市变迁"></button>
   <button class="nav-dot" data-target="screen-gallery" title="汉江记忆"></button>
   <button class="nav-dot" data-target="screen-ending" title="结尾"></button>
 </nav>
@@ -609,19 +562,16 @@ body {
     </div>
   </div>
 
-  <!-- 新老照片滑动对比 -->
-  <h3 style="font-size:18px;color:#e67e22;text-align:center;margin-bottom:20px;">📷 新旧对比 · 拖动滑块查看</h3>
-  <div class="comparison-container">
-    <div class="comparison-wrapper">
-      <!-- 【替换】旧照片 -->
-      <img class="comparison-img comparison-before" src="old_bridge.jpg" alt="汉江大桥旧貌" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 800 450%22><rect fill=%22%231a1a2e%22 width=%22800%22 height=%22450%22/><text x=%22400%22 y=%22225%22 fill=%22%23666%22 text-anchor=%22middle%22 font-size=%2224%22>请替换：旧照片 images/old_bridge.jpg</text></svg>'">
-      <!-- 【替换】新照片 -->
-      <img class="comparison-img comparison-after" src="new_bridge.jpg" alt="汉江大桥今貌" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 800 450%22><rect fill=%22%232d2d44%22 width=%22800%22 height=%22450%22/><text x=%22400%22 y=%22225%22 fill=%22%23888%22 text-anchor=%22middle%22 font-size=%2224%22>请替换：新照片 images/new_bridge.jpg</text></svg>'">
-      <span class="comparison-label label-before">1970年代</span>
-      <span class="comparison-label label-after">2026年</span>
-      <input type="range" class="comparison-slider" min="0" max="100" value="50" id="compareSlider">
-      <div class="comparison-line" id="compareLine"></div>
-      <div class="comparison-handle" id="compareHandle"></div>
+  <!-- 新老照片 · 静态上下对比 -->
+  <h3 style="font-size:18px;color:#e67e22;text-align:center;margin-bottom:24px;">📷 新旧对比 · 半世纪变迁</h3>
+  <div class="static-compare">
+    <div class="static-compare-item">
+      <img src="old_bridge.jpg" alt="汉江大桥旧貌" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 800 450%22><rect fill=%22%231a1a2e%22 width=%22800%22 height=%22450%22/><text x=%22400%22 y=%22225%22 fill=%22%23666%22 text-anchor=%22middle%22 font-size=%2224%22>请替换：旧照片 old_bridge.jpg</text></svg>'">
+      <span class="static-compare-label label-old">📅 1970年代 · 建桥初期</span>
+    </div>
+    <div class="static-compare-item">
+      <img src="new_bridge.jpg" alt="汉江大桥今貌" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 800 450%22><rect fill=%22%232d2d44%22 width=%22800%22 height=%22450%22/><text x=%22400%22 y=%22225%22 fill=%22%23888%22 text-anchor=%22middle%22 font-size=%2224%22>请替换：新照片 new_bridge.jpg</text></svg>'">
+      <span class="static-compare-label label-new">🌆 2026年 · 今日大桥</span>
     </div>
   </div>
 </section>
@@ -654,7 +604,7 @@ body {
 
 <!-- ==================== 第4屏：城市变迁 + 数据可视化 ==================== -->
 <section id="screen-urban" class="section">
-  <h2 class="screen-title">大桥变迁</h2>
+  <h2 class="screen-title">城市变迁</h2>
   <p class="screen-subtitle">从渔火点点到灯光辉煌</p>
 
   <div class="urban-layout">
@@ -707,7 +657,7 @@ body {
   <h2 class="screen-title">我的汉江记忆</h2>
   <p class="gallery-intro">
     每个人眼中都有一座不同的汉江大桥。<br>
-    以下是我关于汉江大桥的摄影作品——有对亲友的摄影留念，也有亲友镜头中关于自己的青春印记。
+    以下是我用镜头记录下的桥上时光——有晨昏光影，也有青春印记。
   </p>
 
   <div class="photo-wall">
@@ -757,20 +707,18 @@ body {
   <h2 class="ending-title">静候聆听</h2>
   <div class="ending-divider"></div>
   <div class="creator-info">
-    <p class="creator-name">张黄平 广编2312</p>
-    <p class="creator-id">【2023195188】</p>
+    <p class="creator-name">椰羊Cocogoat</p>
+    <p class="creator-id">【在此处填写学号】</p>
   </div>
   <p class="ending-quote">
     "在岁月长河中，它静静地诉说着属于这座城市的故事，等待着世人的聆听。"
   </p>
   <div class="footer-info">
     人文湖北 · 融媒体作品<br>
-    《汉江大桥》襄阳 · 2026
+    《汉江大桥》襄阳 · 2025
   </div>
 </section>
 
-<!-- ==================== JavaScript 交互逻辑 ==================== -->
-<!-- ==================== JavaScript 交互逻辑 ==================== -->
 <!-- ==================== JavaScript 交互逻辑 ==================== -->
 <script>
 // ---------- 导航点高亮 ----------
@@ -795,67 +743,7 @@ dots.forEach(dot => {
   });
 });
 
-// ---------- 滑动对比组件 ----------
-// 修复滑动对比功能
-const slider = document.getElementById('compareSlider');
-const line = document.getElementById('compareLine');
-const handle = document.getElementById('compareHandle');
-const beforeImg = document.querySelector('.comparison-before');
-
-if (slider && line && handle && beforeImg) {
-    // 初始化位置
-    const updateSlider = (value) => {
-        const percent = value + '%';
-        line.style.setProperty('--line-pos', percent);
-        handle.style.setProperty('--line-pos', percent);
-        beforeImg.style.setProperty('--clip-right', (100 - value) + '%');
-    };
-    
-    // 监听滑块变化
-    slider.addEventListener('input', (e) => {
-        updateSlider(e.target.value);
-    });
-    
-    // 初始化
-    updateSlider(slider.value);
-    
-    // 添加鼠标拖动支持
-    const container = slider.closest('.comparison-container');
-    if (container) {
-        container.addEventListener('mousedown', startDrag);
-        container.addEventListener('touchstart', startDrag);
-    }
-    
-    function startDrag(e) {
-        e.preventDefault();
-        const isTouch = e.type === 'touchstart';
-        const moveEvent = isTouch ? 'touchmove' : 'mousemove';
-        const endEvent = isTouch ? 'touchend' : 'mouseup';
-        
-        const moveHandler = (moveEvent) => {
-            const rect = container.getBoundingClientRect();
-            const clientX = isTouch ? moveEvent.touches[0].clientX : moveEvent.clientX;
-            let x = clientX - rect.left;
-            x = Math.max(0, Math.min(x, rect.width));
-            const percent = Math.round((x / rect.width) * 100);
-            
-            slider.value = percent;
-            updateSlider(percent);
-        };
-        
-        const endHandler = () => {
-            document.removeEventListener(moveEvent, moveHandler);
-            document.removeEventListener(endEvent, endHandler);
-        };
-        
-        document.addEventListener(moveEvent, moveHandler);
-        document.addEventListener(endEvent, endHandler);
-        
-        // 触发第一次移动
-        moveHandler(e);
-    }
-}
-
+// ---------- 滑动对比组件已改为静态图片，无需JS ----------
 
 // ---------- Lightbox 照片放大 ----------
 function openLightbox(el) {
@@ -878,56 +766,96 @@ document.addEventListener('keydown', e => {
   if (e.key === 'Escape') closeLightbox();
 });
 
-// ---------- Chart.js 数据可视化 ----------
-const chartOpts = {
-  responsive: true,
-  maintainAspectRatio: true,
-  plugins: {
-    legend: { labels: { color: 'rgba(255,255,255,0.6)', font: { size: 12 } } },
-    tooltip: { backgroundColor: 'rgba(0,0,0,0.8)', titleColor: '#e67e22', bodyColor: '#ddd' }
-  },
-  scales: {
-    x: { ticks: { color: 'rgba(255,255,255,0.5)' }, grid: { color: 'rgba(255,255,255,0.05)' } },
-    y: { ticks: { color: 'rgba(255,255,255,0.5)' }, grid: { color: 'rgba(255,255,255,0.05)' } }
+// ---------- Chart.js 数据可视化（增强版：带CDN加载检测 + 空值保护） ----------
+(function() {
+  // 关键修复1：检查Chart对象是否已从CDN加载
+  if (typeof Chart === 'undefined') {
+    console.error('[数据图表] Chart.js 未加载！请检查网络连接或CDN地址是否可访问：');
+    console.error('[数据图表] https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js');
+    return;
   }
-};
 
-// GDP 图表
-new Chart(document.getElementById('gdpChart'), {
-  type: 'line',
-  data: {
-    labels: ['1971', '1980', '1990', '2000', '2010', '2020', '2024'],
-    datasets: [{
-      label: 'GDP（亿元）',
-      data: [5.2, 14.8, 43.6, 128.5, 420.0, 1560.0, 2800.0],
-      borderColor: '#e67e22',
-      backgroundColor: 'rgba(230,126,34,0.1)',
-      fill: true,
-      tension: 0.4,
-      pointBackgroundColor: '#e67e22',
-      pointRadius: 4,
-      pointHoverRadius: 7
-    }]
-  },
-  options: chartOpts
-});
+  const gdpCanvas = document.getElementById('gdpChart');
+  const popCanvas = document.getElementById('popChart');
 
-// 人口图表
-new Chart(document.getElementById('popChart'), {
-  type: 'bar',
-  data: {
-    labels: ['1971', '1980', '1990', '2000', '2010', '2020', '2024'],
-    datasets: [{
-      label: '市区人口（万人）',
-      data: [28, 42, 58, 86, 125, 210, 260],
-      backgroundColor: 'rgba(52,152,219,0.6)',
-      borderColor: '#3498db',
-      borderWidth: 1,
-      borderRadius: 4
-    }]
-  },
-  options: chartOpts
-});
+  // 关键修复2：检查canvas元素是否存在
+  if (!gdpCanvas) { console.warn('[数据图表] #gdpChart 元素未找到'); }
+  if (!popCanvas) { console.warn('[数据图表] #popCanvas 元素未找到'); }
+
+  const chartOpts = {
+    responsive: true,
+    maintainAspectRatio: true,
+    animation: { duration: 1200, easing: 'easeOutQuart' },
+    plugins: {
+      legend: { labels: { color: 'rgba(255,255,255,0.65)', font: { size: 12 }, padding: 16 } },
+      tooltip: {
+        backgroundColor: 'rgba(15,15,20,0.92)',
+        titleColor: '#e67e22',
+        bodyColor: '#ddd',
+        borderColor: 'rgba(230,126,34,0.3)',
+        borderWidth: 1,
+        cornerRadius: 8,
+        padding: 10
+      }
+    },
+    scales: {
+      x: {
+        ticks: { color: 'rgba(255,255,255,0.55)', font: { size: 11 } },
+        grid: { color: 'rgba(255,255,255,0.06)' }
+      },
+      y: {
+        ticks: { color: 'rgba(255,255,255,0.55)', font: { size: 11 } },
+        grid: { color: 'rgba(255,255,255,0.06)' }
+      }
+    }
+  };
+
+  // GDP 折线图
+  if (gdpCanvas) {
+    new Chart(gdpCanvas.getContext('2d'), {
+      type: 'line',
+      data: {
+        labels: ['1971', '1980', '1990', '2000', '2010', '2020', '2024'],
+        datasets: [{
+          label: 'GDP（亿元）',
+          data: [5.2, 14.8, 43.6, 128.5, 420.0, 1560.0, 2800.0],
+          borderColor: '#e67e22',
+          backgroundColor: 'rgba(230,126,34,0.12)',
+          fill: true,
+          tension: 0.35,
+          pointBackgroundColor: '#e67e22',
+          pointBorderColor: '#fff',
+          pointBorderWidth: 2,
+          pointRadius: 4,
+          pointHoverRadius: 8
+        }]
+      },
+      options: chartOpts
+    });
+  }
+
+  // 人口柱状图
+  if (popCanvas) {
+    new Chart(popCanvas.getContext('2d'), {
+      type: 'bar',
+      data: {
+        labels: ['1971', '1980', '1990', '2000', '2010', '2020', '2024'],
+        datasets: [{
+          label: '市区人口（万人）',
+          data: [28, 42, 58, 86, 125, 210, 260],
+          backgroundColor: 'rgba(52,152,219,0.6)',
+          borderColor: '#3498db',
+          borderWidth: 1,
+          borderRadius: 6,
+          hoverBackgroundColor: 'rgba(52,152,219,0.85)'
+        }]
+      },
+      options: chartOpts
+    });
+  }
+
+  console.log('[数据图表] 初始化完成');
+})();
 </script>
 
 </body>
